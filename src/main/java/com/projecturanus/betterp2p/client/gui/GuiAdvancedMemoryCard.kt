@@ -90,7 +90,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private fun reGenInfoFromText() {
         var tmpInfo = infos.filter {
-            it.frequency.toHexString().lowercase().contains(searchBar.text.lowercase()) ||
+            it.frequency.toHexString().contains(searchBar.text.uppercase()) ||
             it.frequency.toHexString().format4().contains(searchBar.text.uppercase()) ||
             it.name.lowercase().contains(searchBar.text.lowercase())
         }
