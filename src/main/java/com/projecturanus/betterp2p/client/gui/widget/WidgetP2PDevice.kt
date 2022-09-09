@@ -13,7 +13,7 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
     private val errorColor = 0x45DA4527
     private val inactiveColor = 0x45FFEA05
 
-    private val rowWidth = 203
+    private val rowWidth = 254
     private val rowHeight = 32
 
     private var selectedInfo: InfoWrapper?
@@ -86,8 +86,8 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
             info.bindButton.enabled = false
             info.selectButton.enabled = true
 
-            info.selectButton.xPosition = x + 172
-            info.selectButton.width = 28
+            info.selectButton.xPosition = x + 215
+            info.selectButton.width = 32
             info.selectButton.yPosition = y + 6
             info.selectButton.drawButton(gui.mc, mouseX, mouseY)
         } else if (info.bindButton.enabled && info.selectButton.enabled) {
@@ -95,14 +95,14 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
             info.selectButton.enabled = true
 
             // Select button on the left
-            info.selectButton.xPosition = x + 141
-            info.selectButton.width = 28
+            info.selectButton.xPosition = x + 178
+            info.selectButton.width = 32
             info.selectButton.yPosition = y + 6
             info.selectButton.drawButton(gui.mc, mouseX, mouseY)
 
             // Bind button on the right
-            info.bindButton.xPosition = x + 172
-            info.bindButton.width = 28
+            info.bindButton.xPosition = x + 215
+            info.bindButton.width = 32
             info.bindButton.yPosition = y + 6
             info.bindButton.drawButton(gui.mc, mouseX, mouseY)
         } else if (!info.selectButton.enabled && !info.bindButton.enabled) {
