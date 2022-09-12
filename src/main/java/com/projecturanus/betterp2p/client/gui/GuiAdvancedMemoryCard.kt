@@ -4,17 +4,22 @@ import appeng.client.gui.widgets.MEGuiTextField
 import com.projecturanus.betterp2p.BetterP2P
 import com.projecturanus.betterp2p.MODID
 import com.projecturanus.betterp2p.capability.MemoryInfo
+import com.projecturanus.betterp2p.capability.P2PTunnelInfo
 import com.projecturanus.betterp2p.client.ClientCache
 import com.projecturanus.betterp2p.client.TextureBound
+import com.projecturanus.betterp2p.client.gui.widget.IGuiTextField
 import com.projecturanus.betterp2p.client.gui.widget.WidgetP2PDevice
 import com.projecturanus.betterp2p.client.gui.widget.WidgetScrollBar
 import com.projecturanus.betterp2p.item.BetterMemoryCardModes
 import com.projecturanus.betterp2p.network.*
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.resources.I18n
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.common.util.ForgeDirection
+import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.util.*
 
@@ -32,6 +37,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private lateinit var scrollBar: WidgetScrollBar
     private lateinit var searchBar: MEGuiTextField
+    private lateinit var renameBar: IGuiTextField
 
     private val infos = msg.infos.map(::InfoWrapper).toMutableList()
 
@@ -47,7 +53,6 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private var infoOnScreen: List<InfoWrapper>
 
     private val descriptionLines: MutableList<String> = mutableListOf()
-
     private var mode = msg.memoryInfo.mode
     private var modeString = getModeString()
     private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 154, 256, 20, modeString) }
@@ -67,6 +72,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     override fun initGui() {
         super.initGui()
         checkInfo()
+        renameBar = IGuiTextField(0,0)
+        renameBar.setMaxStringLength(50)
         scrollBar = WidgetScrollBar()
         searchBar = MEGuiTextField(65, 10)
         searchBar.setMaxStringLength(25)
@@ -125,7 +132,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         } }
     }
 
-    fun refreshInfo(infos: List<P2PInfo>) {
+    fun refreshInfo(infos: List<P2PInfo>,reGenInfo:Boolean=false) {
         for (info in infos) {
             val wrapper = InfoWrapper(info)
             this.infos[info.index] = wrapper
@@ -133,6 +140,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         checkInfo()
         sortInfo()
         refreshOverlay()
+        if(reGenInfo)
+            reGenInfoFromText()
     }
 
     private fun syncMemoryInfo() {
@@ -149,6 +158,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     }
 
     override fun onGuiClosed() {
+        saveP2PChannel()
         syncMemoryInfo()
         ModNetwork.channel.sendToServer(C2SCloseGui())
     }
@@ -158,7 +168,6 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         drawBackground()
         scrollBar.draw(this)
         searchBar.drawTextBox()
-
         for (widget in widgetDevices) {
             widget.render(this, mouseX, mouseY, partialTicks)
         }
@@ -171,7 +180,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             descriptionLines.clear()
         }
         drawInformation()
-
+        if(renameBar.isVisible && !renameBar.isFocused) renameBar.setFocus(true)
+        renameBar.drawTextBox()
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -180,7 +190,6 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         mode = mode.next()
         modeString = getModeString()
         modeButton.displayString = modeString
-
         syncMemoryInfo()
     }
 
@@ -213,6 +222,34 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private fun onSelectButtonClicked(info: InfoWrapper) {
         selectInfo(info.index)
     }
+    private fun onRenameButtonClicked(info:InfoWrapper,index: Int){
+        if(isShiftKeyDown()){
+            return transportPlayer(info)
+        }
+        renameBar.isVisible = true
+        renameBar.y = (this.guiTop + 6) + (index + 1) * 33
+        renameBar.x = this.guiLeft + 60
+        renameBar.w = 120
+        renameBar.h = 12
+        renameBar.text = info.name
+        renameBar.setFocus(true,0)
+        renameBar.info = info
+    }
+
+    private fun saveP2PChannel(){
+        for (widget in widgetDevices){
+            widget.renderNameTextField = true
+        }
+        if(renameBar.info != null && renameBar.info.name != renameBar.text){
+            val info:InfoWrapper = renameBar.info
+            renameBar.text = renameBar.text.trim()
+            ModNetwork.channel.sendToServer(C2SP2PTunnelInfo(P2PTunnelInfo(info.posX,info.posY,info.posZ,info.world, ForgeDirection.valueOf(info.facing.name).ordinal,renameBar.text)))
+        }
+        renameBar.isVisible = false
+        renameBar.text = ""
+        renameBar.setFocus(false)
+        renameBar.info = null
+    }
 
     private fun onBindButtonClicked(info: InfoWrapper) {
         if (selectedIndex == -1) return
@@ -233,19 +270,37 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         }
     }
 
+    private fun transportPlayer(info: InfoWrapper){
+        Minecraft.getMinecraft().thePlayer.closeScreen()
+        ModNetwork.channel.sendToServer(C2STransportPlayer(P2PTunnelInfo(info.posX,info.posY,info.posZ,info.world,0)))
+    }
+
+
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        for (widget in widgetDevices) {
+        var clickRenameButton = false
+        for ((index,widget) in widgetDevices.withIndex()) {
             val info = widget.infoSupplier()
-            if (info?.selectButton?.mousePressed(mc, mouseX, mouseY) == true)
+            if (info?.selectButton?.mousePressed(mc, mouseX, mouseY) == true) {
                 onSelectButtonClicked(widget.infoSupplier()!!)
-            else if (info?.bindButton?.mousePressed(mc, mouseX, mouseY) == true)
+            }else if (info?.bindButton?.mousePressed(mc, mouseX, mouseY) == true) {
                 onBindButtonClicked(widget.infoSupplier()!!)
+            }else if (info?.renameButton?.mousePressed(mc, mouseX,mouseY) == true) {
+                if(renameBar.info != widget.infoSupplier()!!)
+                    saveP2PChannel()
+                widget.renderNameTextField = false
+                onRenameButtonClicked(widget.infoSupplier()!!,index)
+                clickRenameButton = true
+            }
+        }
+        if(!clickRenameButton && renameBar.isVisible){
+            saveP2PChannel()
         }
         if (modeButton.mousePressed(mc, mouseX, mouseY)) {
             switchMode()
         }
         scrollBar.click(mouseX, mouseY)
         searchBar.mouseClicked(mouseX, mouseY, mouseButton)
+        renameBar.mouseClicked(mouseX,mouseY,mouseButton)
         if (mouseButton == 1 && searchBar.isMouseIn(mouseX, mouseY)) {
             this.searchBar.text = ""
             reGenInfoFromText()
@@ -267,6 +322,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 //            this.mouseWheelEvent(x, y, i / Math.abs(i))
         } else if (i != 0) {
             scrollBar.wheel(i)
+            saveP2PChannel()
         }
     }
 
@@ -295,11 +351,17 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     }
 
     override fun keyTyped(char: Char, key: Int) {
-        if (char == ' ' && searchBar.text.isEmpty()) {
-            return
+        if(key == Keyboard.KEY_LSHIFT) return
+        if(renameBar.isFocused){
+            if(key == Keyboard.KEY_RETURN){
+                saveP2PChannel()
+            }else{
+                renameBar.textboxKeyTyped(char, key)
+            }
+        }else if (searchBar.isFocused && !(char == ' ' && searchBar.text.isEmpty())){
+            searchBar.textboxKeyTyped(char, key)
+            reGenInfoFromText()
         }
-        searchBar.textboxKeyTyped(char, key)
-        reGenInfoFromText()
-        super.keyTyped(char, key)
+        return super.keyTyped(char, key)
     }
 }

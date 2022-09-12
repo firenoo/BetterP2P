@@ -98,7 +98,7 @@ object ItemAdvancedMemoryCard : Item() {
         itemIcon = ri.registerIcon("$MODID:advanced_memory_card")
     }
 
-    private fun getInfo(stack: ItemStack): MemoryInfo {
+    fun getInfo(stack: ItemStack): MemoryInfo {
         if (stack.item != this) throw ClassCastException("Cannot cast ${stack.item.javaClass.name} to ${javaClass.name}")
 
         if (stack.tagCompound == null) stack.tagCompound = NBTTagCompound()
