@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.resources.I18n
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.common.util.ForgeDirection
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.util.*
@@ -242,7 +243,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         if(renameBar.info != null && renameBar.info.name != renameBar.text){
             val info:InfoWrapper = renameBar.info
             renameBar.text = renameBar.text.trim()
-            ModNetwork.channel.sendToServer(C2SP2PTunnelInfo(P2PTunnelInfo(info.posX,info.posY,info.posZ,info.world,info.facing.ordinal,renameBar.text)))
+            ModNetwork.channel.sendToServer(C2SP2PTunnelInfo(P2PTunnelInfo(info.posX,info.posY,info.posZ,info.world, ForgeDirection.valueOf(info.facing.name).ordinal,renameBar.text)))
         }
         renameBar.isVisible = false
         renameBar.text = ""
