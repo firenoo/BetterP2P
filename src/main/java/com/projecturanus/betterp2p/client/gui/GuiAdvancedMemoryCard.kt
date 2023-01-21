@@ -152,7 +152,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private fun drawInformation() {
         val x = 8
-        var y = 178
+        var y = 214
         for (line in descriptionLines) {
             fontRendererObj.drawString(line, guiLeft + x, guiTop + y, 0)
             y += fontRendererObj.FONT_HEIGHT
