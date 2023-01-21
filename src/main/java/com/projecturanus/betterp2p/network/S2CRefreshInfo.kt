@@ -2,7 +2,7 @@ package com.projecturanus.betterp2p.network
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage
 import io.netty.buffer.ByteBuf
-import net.minecraft.util.EnumFacing
+import net.minecraftforge.common.util.ForgeDirection
 
 fun readInfo(buf: ByteBuf): P2PInfo {
     val index = buf.readInt()
@@ -11,7 +11,7 @@ fun readInfo(buf: ByteBuf): P2PInfo {
     val posY = buf.readInt()
     val posZ = buf.readInt()
     val world = buf.readInt()
-    val facing = EnumFacing.values()[buf.readInt()]
+    val facing = ForgeDirection.values()[buf.readInt()]
     val nameLength = buf.readShort() - 1
     var name = ""
     for (i in 0..nameLength) {
@@ -30,7 +30,7 @@ fun writeInfo(buf: ByteBuf, info: P2PInfo) {
     buf.writeInt(info.facing.ordinal)
     buf.writeShort(info.name.length)
     for (c in info.name) {
-        buf.writeChar(c.toInt())
+        buf.writeChar(c.code)
     }
     buf.writeBoolean(info.output)
     buf.writeBoolean(info.hasChannel)

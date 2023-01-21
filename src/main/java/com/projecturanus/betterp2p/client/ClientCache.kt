@@ -1,11 +1,11 @@
 package com.projecturanus.betterp2p.client
 
-import net.minecraft.util.EnumFacing
+import net.minecraftforge.common.util.ForgeDirection
 
 object ClientCache {
-    val positions = mutableListOf<Pair<List<Int?>, EnumFacing>>()
+    val positions = mutableListOf<Pair<List<Int?>, ForgeDirection>>()
     var selectedPosition: List<Int?>? = null
-    var selectedFacing: EnumFacing? = null
+    var selectedFacing: ForgeDirection? = null
     var searchText: String= ""
     fun clear() {
         positions.clear()

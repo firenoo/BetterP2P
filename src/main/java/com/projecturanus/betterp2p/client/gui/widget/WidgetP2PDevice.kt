@@ -1,9 +1,14 @@
 package com.projecturanus.betterp2p.client.gui.widget
 
+import appeng.me.GridNode
+import appeng.parts.p2p.PartP2PTunnelME
+import appeng.tile.networking.TileCableBus
 import com.projecturanus.betterp2p.client.gui.InfoWrapper
 import com.projecturanus.betterp2p.item.BetterMemoryCardModes
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.resources.I18n
+import net.minecraftforge.common.DimensionManager
+import net.minecraftforge.common.util.ForgeDirection
 import java.awt.Color
 import kotlin.reflect.KMutableProperty0
 
@@ -14,8 +19,8 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
     private val inactiveColor = 0x45FFEA05
 
     private val rowWidth = 254
-    private val rowHeight = 32
-    public var renderNameTextField = true
+    private val rowHeight = 41
+    var renderNameTextField = true
 
     private var selectedInfo: InfoWrapper?
         get() = selectedInfoProperty.get()
@@ -44,11 +49,12 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
 
             fontRenderer.drawString(info.description, x + 24, y + 3, 0)
             fontRenderer.drawString(I18n.format("gui.advanced_memory_card.pos", info.posX, info.posY, info.posZ, info.facing.name), x + 24, y + 12, 0)
-            if(renderNameTextField){
+            if(renderNameTextField) {
                 fontRenderer.drawString(I18n.format("gui.advanced_memory_card.name", info.name), x + 24, y + 21, 0)
-            }else{
+            } else {
                 fontRenderer.drawString(I18n.format("gui.advanced_memory_card.name", ""), x + 24, y + 21, 0)
             }
+            fontRenderer.drawString(getExtraInfo(info.world, info.posX, info.posY, info.posZ, info.facing), x + 24, y + 30, 0)
 
             if (selectedInfo == null) {
                 info.bindButton.enabled = false
@@ -56,7 +62,6 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
             } else if (info.index != selectedInfo?.index) {
                 info.bindButton.enabled = true
                 info.selectButton.enabled = true
-
             } else {
                 // TODO Unbind
                 info.bindButton.enabled = false
@@ -121,4 +126,15 @@ class WidgetP2PDevice(private val selectedInfoProperty: KMutableProperty0<InfoWr
         }
     }
 
+}
+
+fun getExtraInfo(world: Int, posX: Int, poxY: Int, posZ: Int, face: ForgeDirection): String {
+    val tile = DimensionManager.getWorld(world)?.getTileEntity(posX, poxY, posZ)
+    if (tile is TileCableBus) {
+        val used = ((tile.getPart(face) as? PartP2PTunnelME)?.externalFacingNode as? GridNode)?.usedChannels()
+        if (used != null) {
+            return I18n.format("gui.advanced_memory_card.extra.channel", used)
+        }
+    }
+    return I18n.format("gui.advanced_memory_card.extra.none")
 }
