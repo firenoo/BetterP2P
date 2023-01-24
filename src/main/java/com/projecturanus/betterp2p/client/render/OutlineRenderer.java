@@ -4,8 +4,8 @@ import com.projecturanus.betterp2p.util.GlStateManager;
 import kotlin.Pair;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collection;
@@ -88,7 +88,7 @@ public class OutlineRenderer {
     }
 
 
-    public static void renderOutlinesWithFacing(RenderWorldLastEvent evt, EntityPlayer p, Collection<Pair<List<Integer>, EnumFacing>> coordinates, int r, int g, int b) {
+    public static void renderOutlinesWithFacing(RenderWorldLastEvent evt, EntityPlayer p, Collection<Pair<List<Integer>, ForgeDirection>> coordinates, int r, int g, int b) {
 
         double doubleX = p.lastTickPosX + (p.posX - p.lastTickPosX);
         double doubleY = p.lastTickPosY + (p.posY - p.lastTickPosY);
@@ -107,13 +107,13 @@ public class OutlineRenderer {
         GlStateManager.depthMask(true);
     }
 
-    private static void renderOutlinesWithFacing(Collection<Pair<List<Integer>, EnumFacing>> coordinates, double x, double y, double z, int r, int g, int b, int thickness) {
+    private static void renderOutlinesWithFacing(Collection<Pair<List<Integer>, ForgeDirection>> coordinates, double x, double y, double z, int r, int g, int b, int thickness) {
         Tessellator tessellator = Tessellator.instance;
         //BufferBuilder buffer = tessellator.getBuffer();
 
-        for (Pair<List<Integer>, EnumFacing> coordinate : coordinates) {
+        for (Pair<List<Integer>, ForgeDirection> coordinate : coordinates) {
             List<Integer> pos = coordinate.component1();
-            EnumFacing facing = coordinate.component2();
+            ForgeDirection facing = coordinate.component2();
             if (pos == null || facing == null || pos.size() != 3)
                 continue;
             GlStateManager.pushMatrix();

@@ -26,7 +26,7 @@ import java.util.*
 class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private val xSize = 288
-    private val ySize = 206
+    private val ySize = 242
     private val guiLeft: Int by lazy { (width - this.xSize) / 2 }
     private val guiTop: Int by lazy { (height - this.ySize) / 2 }
 
@@ -55,7 +55,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private val descriptionLines: MutableList<String> = mutableListOf()
     private var mode = msg.memoryInfo.mode
     private var modeString = getModeString()
-    private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 154, 256, 20, modeString) }
+    private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 190, 256, 20, modeString) }
 
     init {
         selectInfo(msg.memoryInfo.selectedIndex)
@@ -81,12 +81,12 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         searchBar.y = guiTop + 5
         scrollBar.displayX = guiLeft + 268
         scrollBar.displayY = guiTop + 19
-        scrollBar.height = 114
+        scrollBar.height = 150
         scrollBar.setRange(0, infos.size.coerceIn(0..(infos.size - 4).coerceAtLeast(0)), 23)
 
         for (i in 0..3) {
             widgetDevices[i].x = guiLeft + tableX
-            widgetDevices[i].y = guiTop + tableY + 33 * i
+            widgetDevices[i].y = guiTop + tableY + 42 * i
         }
         searchBar.text = ClientCache.searchText
         reGenInfoFromText()
@@ -152,7 +152,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private fun drawInformation() {
         val x = 8
-        var y = 178
+        var y = 214
         for (line in descriptionLines) {
             fontRendererObj.drawString(line, guiLeft + x, guiTop + y, 0)
             y += fontRendererObj.FONT_HEIGHT
@@ -226,11 +226,11 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         selectInfo(info.index)
     }
     private fun onRenameButtonClicked(info:InfoWrapper,index: Int){
-        if(isShiftKeyDown()){
+        if(isShiftKeyDown()) {
             return transportPlayer(info)
         }
         renameBar.isVisible = true
-        renameBar.y = (this.guiTop + 6) + (index + 1) * 33
+        renameBar.y = (this.guiTop + this.tableY) + index * 42 + 19
         renameBar.x = this.guiLeft + 60
         renameBar.w = 120
         renameBar.h = 12
@@ -285,9 +285,9 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             val info = widget.infoSupplier()
             if (info?.selectButton?.mousePressed(mc, mouseX, mouseY) == true) {
                 onSelectButtonClicked(widget.infoSupplier()!!)
-            }else if (info?.bindButton?.mousePressed(mc, mouseX, mouseY) == true) {
+            } else if (info?.bindButton?.mousePressed(mc, mouseX, mouseY) == true) {
                 onBindButtonClicked(widget.infoSupplier()!!)
-            }else if (info?.renameButton?.mousePressed(mc, mouseX,mouseY) == true) {
+            } else if (info?.renameButton?.mousePressed(mc, mouseX,mouseY) == true) {
                 if(renameBar.info != widget.infoSupplier()!!)
                     saveP2PChannel()
                 widget.renderNameTextField = false

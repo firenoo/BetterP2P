@@ -3,7 +3,7 @@ package com.projecturanus.betterp2p.client.gui
 import com.projecturanus.betterp2p.network.P2PInfo
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.resources.I18n
-import net.minecraft.util.EnumFacing
+import net.minecraftforge.common.util.ForgeDirection
 import java.util.*
 
 class InfoWrapper(info: P2PInfo) {
@@ -15,7 +15,7 @@ class InfoWrapper(info: P2PInfo) {
     val posY: Int = info.posY
     val posZ: Int = info.posZ
     val world: Int = info.world
-    val facing: EnumFacing = info.facing
+    val facing: ForgeDirection = info.facing
     val description: String
     val output: Boolean = info.output
     var name: String = info.name

@@ -11,7 +11,6 @@ import com.projecturanus.betterp2p.network.P2PInfo
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.util.ForgeDirection
 
 fun linkP2P(player: EntityPlayer, inputIndex: Int, outputIndex: Int, status: P2PStatus) : Pair<PartP2PTunnel<*>, PartP2PTunnel<*>>? {
@@ -60,7 +59,7 @@ fun updateP2P(tunnel: PartP2PTunnel<*>, frequency: Long, output: Boolean, player
 
     val data = NBTTagCompound()
     val p2pItem: ItemStack = tunnel.getItemStack(PartItemStack.Wrench)
-    val type: String = p2pItem.unlocalizedName
+    p2pItem.unlocalizedName
     tunnel.outputProperty = output
     tunnel.customName = name
 
@@ -94,18 +93,8 @@ var PartP2PTunnel<*>.outputProperty
         field.setBoolean(this, value)
     }
 
-fun ForgeDirection.getEnumIndex(): Int {
-    if (this == ForgeDirection.WEST) {
-        return 5
-    }
-    if (this == ForgeDirection.EAST) {
-        return 4
-    }
-    return this.ordinal
-}
-
 val PartP2PTunnel<*>.hasChannel
     get() = isPowered && isActive
 
 fun PartP2PTunnel<*>.getInfo(index: Int)
-    = P2PInfo(index, frequency, location.x, location.y, location.z,location.dimension,EnumFacing.getFront(side.getEnumIndex()), customName, isOutput, hasChannel)
+    = P2PInfo(index, frequency, location.x, location.y, location.z, location.dimension, side, customName, isOutput, hasChannel)
