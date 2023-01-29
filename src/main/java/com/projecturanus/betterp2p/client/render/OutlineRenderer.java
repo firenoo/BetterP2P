@@ -1,15 +1,18 @@
 package com.projecturanus.betterp2p.client.render;
 
-import com.projecturanus.betterp2p.util.GlStateManager;
+import java.util.Collection;
+import java.util.List;
+
 import kotlin.Pair;
+
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import org.lwjgl.opengl.GL11;
 
-import java.util.Collection;
-import java.util.List;
+import com.projecturanus.betterp2p.util.GlStateManager;
 
 /**
  * Everything in this inner class is From a mod that has MIT license owned by romelo333 and maintained by McJty
@@ -23,7 +26,8 @@ import java.util.List;
  */
 public class OutlineRenderer {
 
-    public static void renderOutlines(RenderWorldLastEvent evt, EntityPlayer p, Collection<List<Integer>> coordinates, int r, int g, int b) {
+    public static void renderOutlines(RenderWorldLastEvent evt, EntityPlayer p, Collection<List<Integer>> coordinates,
+            int r, int g, int b) {
         double doubleX = p.lastTickPosX + (p.posX - p.lastTickPosX);
         double doubleY = p.lastTickPosY + (p.posY - p.lastTickPosY);
         double doubleZ = p.lastTickPosZ + (p.posZ - p.lastTickPosZ);
@@ -45,10 +49,10 @@ public class OutlineRenderer {
 
     private static void renderOutlines(Collection<List<Integer>> coordinates, int r, int g, int b, int thickness) {
         Tessellator tessellator = Tessellator.instance;
-        //    net.minecraft.client.renderer.VertexBuffer
-        //BufferBuilder buffer = tessellator.getBuffer();
+        // net.minecraft.client.renderer.VertexBuffer
+        // BufferBuilder buffer = tessellator.getBuffer();
         tessellator.startDrawing(GL11.GL_LINES);
-        //    GlStateManager.color(r / 255.0f, g / 255.0f, b / 255.0f);
+        // GlStateManager.color(r / 255.0f, g / 255.0f, b / 255.0f);
         GL11.glLineWidth(thickness);
         for (List<Integer> coordinate : coordinates) {
             float x = coordinate.get(0);
@@ -59,7 +63,8 @@ public class OutlineRenderer {
         tessellator.draw();
     }
 
-    public static void renderHighLightedBlocksOutline(Tessellator tessellator, float mx, float my, float mz, int r, int g, int b, int a) {
+    public static void renderHighLightedBlocksOutline(Tessellator tessellator, float mx, float my, float mz, int r,
+            int g, int b, int a) {
         tessellator.setColorRGBA(r, g, b, a);
         tessellator.addVertex(mx, my, mz);
         tessellator.addVertex(mx + 1, my, mz);
@@ -87,8 +92,8 @@ public class OutlineRenderer {
         tessellator.addVertex(mx, my + 1, mz + 1);
     }
 
-
-    public static void renderOutlinesWithFacing(RenderWorldLastEvent evt, EntityPlayer p, Collection<Pair<List<Integer>, ForgeDirection>> coordinates, int r, int g, int b) {
+    public static void renderOutlinesWithFacing(RenderWorldLastEvent evt, EntityPlayer p,
+            Collection<Pair<List<Integer>, ForgeDirection>> coordinates, int r, int g, int b) {
 
         double doubleX = p.lastTickPosX + (p.posX - p.lastTickPosX);
         double doubleY = p.lastTickPosY + (p.posY - p.lastTickPosY);
@@ -107,15 +112,15 @@ public class OutlineRenderer {
         GlStateManager.depthMask(true);
     }
 
-    private static void renderOutlinesWithFacing(Collection<Pair<List<Integer>, ForgeDirection>> coordinates, double x, double y, double z, int r, int g, int b, int thickness) {
+    private static void renderOutlinesWithFacing(Collection<Pair<List<Integer>, ForgeDirection>> coordinates, double x,
+            double y, double z, int r, int g, int b, int thickness) {
         Tessellator tessellator = Tessellator.instance;
-        //BufferBuilder buffer = tessellator.getBuffer();
+        // BufferBuilder buffer = tessellator.getBuffer();
 
         for (Pair<List<Integer>, ForgeDirection> coordinate : coordinates) {
             List<Integer> pos = coordinate.component1();
             ForgeDirection facing = coordinate.component2();
-            if (pos == null || facing == null || pos.size() != 3)
-                continue;
+            if (pos == null || facing == null || pos.size() != 3) continue;
             GlStateManager.pushMatrix();
             GlStateManager.translate(x, y, z);
             tessellator.startDrawing(GL11.GL_LINES);
@@ -148,10 +153,10 @@ public class OutlineRenderer {
                 case WEST:
                     break;
             }
-            int[] west_matrix = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-            int[] east_matrix = {-1, 0, 0, 0, 1, 0, 0, 0, 1};
-            int[] north_matrix = {0, 0, -1, 0, 1, 0, 1, 0, 0};
-            int[] south_matrix = {0, 0, 1, 0, 1, 0, -1, 0, 0};
+            int[] west_matrix = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            int[] east_matrix = { -1, 0, 0, 0, 1, 0, 0, 0, 1 };
+            int[] north_matrix = { 0, 0, -1, 0, 1, 0, 1, 0, 0 };
+            int[] south_matrix = { 0, 0, 1, 0, 1, 0, -1, 0, 0 };
 
             GlStateManager.translate(-0.5, -0.5, -0.5);
             GlStateManager.translate(-pos.get(0), -pos.get(1), -pos.get(2));
@@ -161,9 +166,7 @@ public class OutlineRenderer {
 
     }
 
-
-    public static void renderHighLightedBlocksOutlineForFacing(Tessellator tessellator,
-                                                               int r, int g, int b, int a) {
+    public static void renderHighLightedBlocksOutlineForFacing(Tessellator tessellator, int r, int g, int b, int a) {
         double minX = 0;
         double minY = 0.125;
         double minZ = 0.125;

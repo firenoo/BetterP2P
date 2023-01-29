@@ -1,16 +1,18 @@
 package com.projecturanus.betterp2p.client.render;
 
-import com.projecturanus.betterp2p.util.GlStateManager;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.projecturanus.betterp2p.util.GlStateManager;
 
 /**
  * Functions from this inner class are not authored by me (Sam Bassett aka Lothrazar) they are from BuildersGuides by
@@ -19,43 +21,48 @@ import java.util.List;
  *
  *         All credit goes to author for this
  *
- *         Source code: https://github.com/Ipsis/BuildersGuides Source License https://github.com/Ipsis/BuildersGuides/blob/master/COPYING.LESSER
+ *         Source code: https://github.com/Ipsis/BuildersGuides Source License
+ *         https://github.com/Ipsis/BuildersGuides/blob/master/COPYING.LESSER
  *
- *         I used and modified two functions from this library https://github.com/Ipsis/BuildersGuides/blob/master/src/main/java/ipsis/buildersguides/util/RenderUtils.java
+ *         I used and modified two functions from this library
+ *         https://github.com/Ipsis/BuildersGuides/blob/master/src/main/java/ipsis/buildersguides/util/RenderUtils.java
  *
  *
  */
 @SuppressWarnings("serial")
 public class ShadowRenderer {
 
-    public static void renderBlockPos(List<Integer> p, List<Integer> center, double relX, double relY, double relZ, float red, float green, float blue) {
+    public static void renderBlockPos(List<Integer> p, List<Integer> center, double relX, double relY, double relZ,
+            float red, float green, float blue) {
         if (p == null) {
             return;
         }
         renderBlockList(new ArrayList<List<Integer>>() {
+
             {
                 add(p);
             }
         }, center, relX, relY, relZ, red, green, blue);
     }
 
-    public static void renderBlockPhantom(World world, final List<Integer> pos, ItemStack stack, final double relX, final double relY, final double relZ,
-                                          List<Integer> target, boolean isSolid) {
+    public static void renderBlockPhantom(World world, final List<Integer> pos, ItemStack stack, final double relX,
+            final double relY, final double relZ, List<Integer> target, boolean isSolid) {
         if (stack.getItem() instanceof ItemBlock) {
             int stateFromStack = stack.getItemDamage();
             renderBlockPhantom(world, pos, stateFromStack, relX, relY, relZ, target, isSolid);
         }
     }
 
-    public static void renderBlockPhantom(World world, final List<Integer> pos, int state, final double relX, final double relY, final double relZ, List<Integer> target, boolean isSolid) {
+    public static void renderBlockPhantom(World world, final List<Integer> pos, int state, final double relX,
+            final double relY, final double relZ, List<Integer> target, boolean isSolid) {
         int xOffset = target.get(0) - pos.get(0);
         int yOffset = target.get(1) - pos.get(1);
         int zOffset = target.get(2) - pos.get(2);
-        //final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        // final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
         Tessellator tessellator = Tessellator.instance;
-        //BufferBuilder bufferBuilder = tessellator.getBuffer();
+        // BufferBuilder bufferBuilder = tessellator.getBuffer();
         GlStateManager.pushMatrix();
-        //this first translate is to make relative to TE and everything
+        // this first translate is to make relative to TE and everything
         GlStateManager.translate(relX + 0.5F, relY + 0.5F, relZ + 0.5F);
         RenderHelper.disableStandardItemLighting();
         if (!isSolid) {
@@ -64,18 +71,19 @@ public class ShadowRenderer {
             GlStateManager.disableCull();
         }
         tessellator.startDrawing(GL11.GL_QUADS);
-        //move into frame and then back to zero - so world relative
+        // move into frame and then back to zero - so world relative
         tessellator.setTranslation(-0.5 - pos.get(0) + xOffset, -.5 - pos.get(1) + yOffset, -.5 - pos.get(2) + zOffset);
         Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
-        //TODO: pos below is the targetPos, other rel and pos are TE
-        //blockRenderer.getBlockModelRenderer().renderModel(world, model, state, pos, bufferBuilder, false);
+        // TODO: pos below is the targetPos, other rel and pos are TE
+        // blockRenderer.getBlockModelRenderer().renderModel(world, model, state, pos, bufferBuilder, false);
         tessellator.setTranslation(0.0D, 0.0D, 0.0D);
         tessellator.draw();
         RenderHelper.enableStandardItemLighting();
         GlStateManager.popMatrix();
     }
 
-    public static void renderBlockList(List<List<Integer>> blockPosList, List<Integer> center, double relX, double relY, double relZ, float red, float green, float blue) {
+    public static void renderBlockList(List<List<Integer>> blockPosList, List<Integer> center, double relX, double relY,
+            double relZ, float red, float green, float blue) {
         GlStateManager.pushAttrib();
         GlStateManager.pushMatrix();
         // translate to center or te
@@ -86,16 +94,14 @@ public class ShadowRenderer {
         GlStateManager.enableBlend();
         float alpha = 0.5F;
         GlStateManager.color(red, green, blue, alpha);
-        if (Minecraft.isAmbientOcclusionEnabled())
-            GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        else
-            GlStateManager.shadeModel(GL11.GL_FLAT);
+        if (Minecraft.isAmbientOcclusionEnabled()) GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        else GlStateManager.shadeModel(GL11.GL_FLAT);
         for (List<Integer> p : blockPosList) {
             GlStateManager.pushMatrix();
             GlStateManager.translate(
-                (center.get(0) - p.get(0)) * -1.0F,
-                (center.get(1) - p.get(1)) * -1.0F,
-                (center.get(2) - p.get(2)) * -1.0F);
+                    (center.get(0) - p.get(0)) * -1.0F,
+                    (center.get(1) - p.get(1)) * -1.0F,
+                    (center.get(2) - p.get(2)) * -1.0F);
             shadedCube(0.4F);
             GlStateManager.popMatrix();
         }
@@ -109,7 +115,7 @@ public class ShadowRenderer {
     private static void shadedCube(float scale) {
         float size = 1.0F * scale;
         Tessellator tessellator = Tessellator.instance;
-        //BufferBuilder worldRenderer = tessellator.getBuffer();
+        // BufferBuilder worldRenderer = tessellator.getBuffer();
         // Front - anticlockwise vertices
         // Back - clockwise vertices
         tessellator.startDrawing(GL11.GL_QUADS);
