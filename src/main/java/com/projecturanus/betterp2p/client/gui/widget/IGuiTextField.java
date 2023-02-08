@@ -13,7 +13,7 @@ public class IGuiTextField extends MEGuiTextField {
     }
 
     public void setFocus(boolean focus, int position) {
-        this.field.setFocused(focus);
+        super.setFocused(focus);
         this.field.setCursorPosition(position);
     }
 
@@ -35,6 +35,6 @@ public class IGuiTextField extends MEGuiTextField {
     }
 
     public void setFocus(boolean focus) {
-        this.field.setFocused(focus);
+        super.setFocused(focus);
     }
 }
