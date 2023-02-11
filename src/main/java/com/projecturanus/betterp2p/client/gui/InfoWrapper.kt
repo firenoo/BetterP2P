@@ -39,6 +39,10 @@ class InfoWrapper(info: P2PInfo) {
                 append(info.frequency.toHexString().format4())
         }
     }
+
+    override fun toString() : String {
+        return "${posX}_${posY}_${posZ}_${world}_${facing}"
+    }
 }
 
 fun Long.toHexString(): String {
