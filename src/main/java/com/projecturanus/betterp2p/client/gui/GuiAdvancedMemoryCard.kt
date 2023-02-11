@@ -58,9 +58,18 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 190, 256, 20, modeString) }
 
     init {
-        sortInfo()
+        val tmp = mutableSetOf<String>()
+        sortedInfo = sortedInfo.filter { tmp.add(it.toString()) }
         selectedIndex = mapSelected(msg.memoryInfo.selectedIndex)
-        sortInfo()
+        sortedInfo.sortedBy { if (it.index == selectedIndex) {
+            -2 // Put the selected p2p in the front
+        } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
+            -3 // Put input in the beginning
+        } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency) {
+            -1 // Put same frequency in the front
+        } else {
+            it.frequency + Short.MAX_VALUE
+        } }
 //        infoOnScreen = sortedInfo.take(5)
         selectInfo(selectedIndex)
 
@@ -104,7 +113,9 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
                     it.frequency.toHexString().format4().contains(searchBar.text.uppercase()) ||
                     it.name.lowercase().contains(searchBar.text.lowercase())
             }
-            sortedInfo = tmpInfo.sortedBy {
+            sortedInfo = tmpInfo.filter {
+                tmp.add(it.toString())
+            }.sortedBy {
                 if (it.index == selectedIndex) {
                     -2 // Put the selected p2p in the front
                 } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
@@ -114,8 +125,6 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
                 } else {
                     it.frequency + Short.MAX_VALUE
                 }
-            }.filter {
-                tmp.add(it.toString())
             }
         }
     }
@@ -124,7 +133,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         val tmp = mutableSetOf<String>()
         sortedInfo = infos.filter {
             tmp.add(it.toString())
-        }.sortedBy {
+        }
+        sortedInfo = sortedInfo.sortedBy {
             if (it.index == selectedIndex) {
                 -2 // Put the selected p2p in the front
             } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
