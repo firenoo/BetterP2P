@@ -44,13 +44,13 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private var sortedInfo = infos.toList()
 
     private var selectedInfo: InfoWrapper?
-        get() = infos.getOrNull(selectedIndex)
+        get() = sortedInfo.find { it.index == selectedIndex }
         set(value) {
             selectedIndex = value?.index ?: -1
         }
 
     private val widgetDevices: List<WidgetP2PDevice>
-    private var infoOnScreen: List<InfoWrapper>
+//    private var infoOnScreen: List<InfoWrapper>
 
     private val descriptionLines: MutableList<String> = mutableListOf()
     private var mode = msg.memoryInfo.mode
@@ -58,9 +58,20 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 190, 256, 20, modeString) }
 
     init {
-        selectInfo(msg.memoryInfo.selectedIndex)
-        sortInfo()
-        infoOnScreen = sortedInfo.take(5)
+        val tmp = mutableSetOf<String>()
+        sortedInfo = sortedInfo.filter { tmp.add(it.toString()) }
+        selectedIndex = mapSelected(msg.memoryInfo.selectedIndex)
+        sortedInfo.sortedBy { if (it.index == selectedIndex) {
+            -2 // Put the selected p2p in the front
+        } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
+            -3 // Put input in the beginning
+        } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency) {
+            -1 // Put same frequency in the front
+        } else {
+            it.frequency + Short.MAX_VALUE
+        } }
+//        infoOnScreen = sortedInfo.take(5)
+        selectInfo(selectedIndex)
 
         val list = mutableListOf<WidgetP2PDevice>()
         for (i in 0..3) {
@@ -93,28 +104,37 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     }
 
     private fun reGenInfoFromText() {
-        var tmpInfo = infos.filter {
-            it.frequency.toHexString().contains(searchBar.text.uppercase()) ||
-            it.frequency.toHexString().format4().contains(searchBar.text.uppercase()) ||
-            it.name.lowercase().contains(searchBar.text.lowercase())
-        }
-        if (searchBar.text.isEmpty())
-            tmpInfo = infos
-        sortedInfo = tmpInfo.sortedBy {
-            if (it.index == selectedIndex) {
-                -2 // Put the selected p2p in the front
-            } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
-                -3 // Put input in the beginning
-            } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency) {
-                -1 // Put same frequency in the front
-            } else {
-                it.frequency + Short.MAX_VALUE
+        if (searchBar.text.isEmpty()) {
+            sortInfo()
+        } else {
+            val tmp = mutableSetOf<String>()
+            val tmpInfo = infos.filter {
+                it.frequency.toHexString().contains(searchBar.text.uppercase()) ||
+                    it.frequency.toHexString().format4().contains(searchBar.text.uppercase()) ||
+                    it.name.lowercase().contains(searchBar.text.lowercase())
+            }
+            sortedInfo = tmpInfo.filter {
+                tmp.add(it.toString())
+            }.sortedBy {
+                if (it.index == selectedIndex) {
+                    -2 // Put the selected p2p in the front
+                } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
+                    -3 // Put input in the beginning
+                } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency) {
+                    -1 // Put same frequency in the front
+                } else {
+                    it.frequency + Short.MAX_VALUE
+                }
             }
         }
     }
 
     private fun sortInfo() {
-        sortedInfo = infos.sortedBy {
+        val tmp = mutableSetOf<String>()
+        sortedInfo = infos.filter {
+            tmp.add(it.toString())
+        }
+        sortedInfo = sortedInfo.sortedBy {
             if (it.index == selectedIndex) {
                 -2 // Put the selected p2p in the front
             } else if (it.frequency != 0.toLong() && it.frequency == selectedInfo?.frequency && !it.output) {
@@ -135,15 +155,14 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     }
 
     fun refreshInfo(infos: List<P2PInfo>,reGenInfo:Boolean=false) {
-        for (info in infos) {
-            val wrapper = InfoWrapper(info)
-            this.infos[info.index] = wrapper
-        }
+        infos.forEach { this.infos[it.index] = InfoWrapper(it) }
         checkInfo()
-        sortInfo()
-        refreshOverlay()
-        if(reGenInfo)
+        if(reGenInfo) {
             reGenInfoFromText()
+        } else {
+            sortInfo()
+        }
+        refreshOverlay()
     }
 
     private fun syncMemoryInfo() {
@@ -203,8 +222,19 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private fun findInput(frequency: Long) =
         infos.find { it.frequency == frequency && !it.output }
 
+    /*
+     * Maps the index to one that exists in the filtered/sorted list.
+     */
+    private fun mapSelected(index: Int) : Int {
+        return if (index >= 0) {
+            sortedInfo.find {
+                it.toString() == infos[index].toString()
+            }?.index ?: -1
+        } else -1
+    }
+
     private fun selectInfo(index: Int) {
-        selectedIndex = index
+        selectedIndex = mapSelected(index)
         syncMemoryInfo()
         refreshOverlay()
     }
@@ -219,7 +249,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             ClientCache.selectedFacing = selectedInfo?.facing
         }
         ClientCache.positions.clear()
-        ClientCache.positions.addAll(infos.filter { it.frequency == selectedInfo?.frequency && it != selectedInfo }.map { arrayListOf(it.posX, it.posY, it.posZ) to it.facing })
+        ClientCache.positions.addAll(sortedInfo.filter { it.frequency == selectedInfo?.frequency && it != selectedInfo }.map { arrayListOf(it.posX, it.posY, it.posZ) to it.facing })
     }
 
     private fun onSelectButtonClicked(info: InfoWrapper) {

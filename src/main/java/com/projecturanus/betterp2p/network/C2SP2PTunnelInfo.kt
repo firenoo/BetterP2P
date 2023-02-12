@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf
 
 fun readP2PTunnelInfo(buf: ByteBuf): P2PTunnelInfo {
     return P2PTunnelInfo(buf.readInt(),buf.readInt(),buf.readInt(),buf.readInt(),buf.readInt(), buf.readBytes(buf.readInt()).toString(Charsets.UTF_8))
-
 }
 
 fun writeP2PTunnelInfo(buf: ByteBuf,info: P2PTunnelInfo) {
