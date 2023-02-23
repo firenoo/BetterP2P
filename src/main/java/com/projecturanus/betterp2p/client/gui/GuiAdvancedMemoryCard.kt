@@ -44,7 +44,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private var sortedInfo = infos.toList()
 
     private var selectedInfo: InfoWrapper?
-        get() = sortedInfo.find { it.index == selectedIndex }
+        get() = infos.find { it.index == selectedIndex }
         set(value) {
             selectedIndex = value?.index ?: -1
         }
