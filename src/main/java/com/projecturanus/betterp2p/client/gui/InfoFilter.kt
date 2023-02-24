@@ -21,25 +21,33 @@ class InfoFilter {
      * filter list.
      */
     fun updateFilter(query: String) {
-        val tokens = query.split("\\s+".toRegex()) // split by whitespace
+        // I spent 10 minutes on this until I gave up... regex wtf
+        // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
+        val regex = "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'".toRegex()
+        val tokens = regex.findAll(query)
         activeFilters.clear()
         tokens.forEach {
             when {
-                it.matches(Filter.INPUT.pattern) -> {
+                it.value.matches(Filter.INPUT.pattern) -> {
                     activeFilters.putIfAbsent(Filter.INPUT, null)
                 }
-                it.matches(Filter.OUTPUT.pattern) -> {
+                it.value.matches(Filter.OUTPUT.pattern) -> {
                     activeFilters.putIfAbsent(Filter.OUTPUT, null)
                 }
-                it.matches(Filter.BOUND.pattern) -> {
+                it.value.matches(Filter.BOUND.pattern) -> {
                     activeFilters.putIfAbsent(Filter.BOUND, null)
                 }
-                it.matches(Filter.UNBOUND.pattern) -> {
+                it.value.matches(Filter.UNBOUND.pattern) -> {
                     activeFilters.putIfAbsent(Filter.UNBOUND, null)
                 }
+                it.value.isBlank() -> {}
                 else -> {
                     activeFilters.putIfAbsent(Filter.NAME, mutableListOf())
-                    activeFilters[Filter.NAME]!!.add(it)
+                    when {
+                        it.groups[1] != null -> activeFilters[Filter.NAME]!!.add(it.groups[1]!!.value)
+                        it.groups[2] != null -> activeFilters[Filter.NAME]!!.add(it.groups[2]!!.value)
+                        else -> activeFilters[Filter.NAME]!!.add(it.value)
+                    }
                 }
             }
         }
@@ -68,7 +76,3 @@ enum class Filter(val pattern: Regex, val filter: (InfoWrapper, List<String>?) -
     });
 
 }
-
-//fun parseQuery(search: String): InfoFilter {
-//
-//}
