@@ -114,6 +114,7 @@ class InfoList (initList: Collection<InfoWrapper>,
      * Updates the sorted list and applies the filter again.
      */
     fun refresh() {
+        sorted.clear()
         sorted.addAll(masterMap.values)
         resort()
         refilter()
