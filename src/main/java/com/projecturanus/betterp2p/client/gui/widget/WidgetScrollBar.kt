@@ -3,9 +3,7 @@ package com.projecturanus.betterp2p.client.gui.widget
 import com.projecturanus.betterp2p.client.TextureBound
 import net.minecraft.client.gui.Gui
 
-class WidgetScrollBar {
-    var displayX = 0
-    var displayY = 0
+class WidgetScrollBar(var displayX: Int, var displayY: Int) {
     var width = 12
     var height = 16
     var pageSize = 1
@@ -42,7 +40,7 @@ class WidgetScrollBar {
     }
 
     private fun applyRange() {
-        currentScroll = currentScroll.coerceAtMost(maxScroll).coerceAtLeast(minScroll)
+        currentScroll = currentScroll.coerceIn(minScroll, maxScroll)
         onScroll()
     }
 
@@ -62,7 +60,7 @@ class WidgetScrollBar {
 
     fun wheel(delta: Int) {
         var delta = delta
-        delta = (-delta).coerceAtMost(1).coerceAtLeast(-1)
+        delta = (-delta).coerceIn(-1, 1)
         currentScroll += delta
         applyRange()
     }
