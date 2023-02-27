@@ -17,7 +17,7 @@ import org.lwjgl.input.Mouse
 import java.util.*
 
 const val GUI_WIDTH = 288
-const val GUI_TEX_HEIGHT = 200
+const val GUI_TEX_HEIGHT = 264
 class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
 
     private lateinit var _guiLeft: Lazy<Int>
@@ -81,7 +81,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         col = WidgetP2PColumn(this, infos,0, 0,
             ::selectedInfo, ::mode, scrollBar)
         searchBar = MEGuiTextField(100, 10)
-        resizeButton = object: WidgetButton(0, 0, 32, 32, { "gui.advanced_memory_card.gui_scale.resize" }) {
+        resizeButton = object: WidgetButton(this, 0, 0, 32, 32, { scale.unlocalizedName }) {
             override fun mousePressed(mouseX: Int, mouseY: Int) {
                 if (super.mousePressed(mc, mouseX, mouseY)) {
                     scale = when(scale) {
@@ -127,6 +127,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         modeButton.yPosition = guiTop + ySize - 52
 
         resizeButton.setPosition(guiLeft - 32, guiTop + 2)
+        resizeButton.setTexCoords(scale.ordinal * 32.0, 200.0)
+
         infos.refresh()
         checkInfo()
         refreshOverlay()
@@ -172,7 +174,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         searchBar.drawTextBox()
         col.render(this, mouseX, mouseY, partialTicks)
         modeButton.drawButton(mc, mouseX, mouseY)
-        resizeButton.draw(mouseX, mouseY, partialTicks)
+        resizeButton.draw(mc, mouseX, mouseY, partialTicks)
         fontRendererObj.drawString(I18n.format("item.advanced_memory_card.name"), guiLeft + tableX, guiTop + 6, 0)
         if (modeButton.func_146115_a()) {
             descriptionLines.clear()
@@ -288,8 +290,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         }
         // Draw Bottom
         tessellator.startDrawingQuads()
-        tessellator.addVertexWithUV(guiLeft.toDouble(), (guiTop + ySize).toDouble(), 0.0, 0.0, 1.0)
-        tessellator.addVertexWithUV(((guiLeft + GUI_WIDTH).toDouble()), (guiTop + ySize).toDouble(), 0.0, 1.0, 1.0)
+        tessellator.addVertexWithUV(guiLeft.toDouble(), (guiTop + ySize).toDouble(), 0.0, 0.0, 200.0 / GUI_TEX_HEIGHT)
+        tessellator.addVertexWithUV(((guiLeft + GUI_WIDTH).toDouble()), (guiTop + ySize).toDouble(), 0.0, 1.0, 200.0 / GUI_TEX_HEIGHT)
         tessellator.addVertexWithUV((guiLeft + GUI_WIDTH).toDouble(), guiTop + ySize - 98.0, 0.0, 1.0, 102.0 / GUI_TEX_HEIGHT)
         tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop + ySize - 98.0, 0.0, 0.0, 102.0 / GUI_TEX_HEIGHT)
         tessellator.draw()
