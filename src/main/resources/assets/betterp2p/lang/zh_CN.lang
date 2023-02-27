@@ -13,3 +13,7 @@ gui.advanced_memory_card.desc.mode.input=输入
 gui.advanced_memory_card.desc.mode.output=输出
 gui.advanced_memory_card.desc.not_set=未配置
 gui.advanced_memory_card.desc.effect=效果:
+gui.advanced_memory_card.gui_scale.small=小
+gui.advanced_memory_card.gui_scale.normal=中
+gui.advanced_memory_card.gui_scale.large=大
+gui.advanced_memory_card.gui_scale.dynamic=自动
