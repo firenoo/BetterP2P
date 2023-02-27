@@ -37,7 +37,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private val tableX = 9
     private val tableY = 19
 
-    private val scale = GuiScale.DYNAMIC
+    private var scale = msg.memoryInfo.gui
+    private val resizeButton: WidgetButton
 
     private var _ySize: Lazy<Int> = lazy { 242 }
     private var ySize: Int
@@ -46,8 +47,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             _ySize = lazy { value }
         }
 
-    private var scrollBar: WidgetScrollBar
-    private lateinit var searchBar: MEGuiTextField
+    private val scrollBar: WidgetScrollBar
+    private val searchBar: MEGuiTextField
 
     private val infos = InfoList(msg.infos.map(::InfoWrapper), ::searchText)
 
@@ -79,6 +80,21 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         scrollBar = WidgetScrollBar(0, 0)
         col = WidgetP2PColumn(this, infos,0, 0,
             ::selectedInfo, ::mode, scrollBar)
+        searchBar = MEGuiTextField(100, 10)
+        resizeButton = object: WidgetButton(0, 0, 32, 32, { "gui.advanced_memory_card.gui_scale.resize" }) {
+            override fun mousePressed(mouseX: Int, mouseY: Int) {
+                if (super.mousePressed(mc, mouseX, mouseY)) {
+                    scale = when(scale) {
+                        GuiScale.DYNAMIC -> GuiScale.SMALL
+                        GuiScale.SMALL -> GuiScale.NORMAL
+                        GuiScale.NORMAL -> GuiScale.LARGE
+                        GuiScale.LARGE -> GuiScale.DYNAMIC
+                    }
+                    initGui()
+                    super.func_146113_a(mc.soundHandler)
+                }
+            }
+        }
     }
 
     // Note this is called on resize too.
@@ -86,17 +102,19 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         super.initGui()
         checkInfo()
         val h = height.coerceAtLeast(256)
-        val numEntries = scale.size(h - 75)
+        if (scale.minHeight > h) {
+            scale = GuiScale.DYNAMIC
+        }
+        val numEntries = scale.size(height - 75)
         ySize = (numEntries * P2P_ENTRY_HEIGHT) + 75 + (numEntries - 1)
         guiTop = (h - ySize) / 2
         guiLeft = (width - GUI_WIDTH) / 2
 
         scrollBar.displayX = guiLeft + 268
         scrollBar.displayY = guiTop + 19
-        scrollBar.height = numEntries * P2P_ENTRY_HEIGHT + (numEntries - 1)
+        scrollBar.height = numEntries * P2P_ENTRY_HEIGHT + (numEntries - 1) - 7
         scrollBar.setRange(0, infos.size.coerceIn(0, (infos.size - numEntries).coerceAtLeast(0)), 23)
 
-        searchBar = MEGuiTextField(100, 10)
         searchBar.setMaxStringLength(40)
         searchBar.x = guiLeft + 163
         searchBar.y = guiTop + 5
@@ -108,6 +126,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         modeButton.xPosition = guiLeft + 8
         modeButton.yPosition = guiTop + ySize - 52
 
+        resizeButton.setPosition(guiLeft - 32, guiTop + 2)
         infos.refresh()
         checkInfo()
         refreshOverlay()
@@ -128,7 +147,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     }
 
     private fun syncMemoryInfo() {
-        ModNetwork.channel.sendToServer(C2SUpdateInfo(MemoryInfo(infos.selectedEntry, selectedInfo?.frequency ?: 0, mode)))
+        ModNetwork.channel.sendToServer(C2SUpdateInfo(MemoryInfo(infos.selectedEntry, selectedInfo?.frequency ?: 0, mode, scale)))
     }
 
     private fun drawInformation() {
@@ -153,6 +172,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         searchBar.drawTextBox()
         col.render(this, mouseX, mouseY, partialTicks)
         modeButton.drawButton(mc, mouseX, mouseY)
+        resizeButton.draw(mouseX, mouseY, partialTicks)
         fontRendererObj.drawString(I18n.format("item.advanced_memory_card.name"), guiLeft + tableX, guiTop + 6, 0)
         if (modeButton.func_146115_a()) {
             descriptionLines.clear()
@@ -163,6 +183,8 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         drawInformation()
         if (searchBar.isMouseIn(mouseX, mouseY)) {
             drawHoveringText(sortRules, guiLeft, guiTop + ySize - 40, fontRendererObj)
+        } else if (resizeButton.isHovering(mouseX, mouseY)) {
+            drawHoveringText(listOf(I18n.format(resizeButton.hoverText())), mouseX, mouseY, fontRendererObj)
         }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
@@ -208,6 +230,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             switchMode()
         }
         scrollBar.click(mouseX, mouseY)
+        resizeButton.mousePressed(mouseX, mouseY)
         searchBar.mouseClicked(mouseX, mouseY, mouseButton)
         if (mouseButton == 1 && searchBar.isMouseIn(mouseX, mouseY)) {
             this.searchBar.text = ""
@@ -216,6 +239,10 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
+    override fun mouseMovedOrUp(mouseX: Int, mouseY: Int, state: Int) {
+        super.mouseMovedOrUp(mouseX, mouseY, state)
+        if (state != -1) scrollBar.moving = false
+    }
     override fun mouseClickMove(mouseX: Int, mouseY: Int, clickedMouseButton: Int, timeSinceLastClick: Long) {
         scrollBar.click(mouseX, mouseY)
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)

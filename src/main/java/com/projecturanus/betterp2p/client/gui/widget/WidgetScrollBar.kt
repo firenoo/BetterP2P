@@ -14,7 +14,7 @@ class WidgetScrollBar(var displayX: Int, var displayY: Int) {
     var onScroll: () -> Unit = {}
 
     var currentScroll = 0
-
+    var moving = false
     fun <T> draw(g: T) where T: TextureBound, T: Gui {
         g.bindTexture("minecraft", "textures/gui/container/creative_inventory/tabs.png")
         if (getRange() == 0) {
@@ -48,12 +48,13 @@ class WidgetScrollBar(var displayX: Int, var displayY: Int) {
         if (getRange() == 0) {
             return
         }
-        if (x > displayX && x <= displayX + width) {
-            if (y > displayY && y <= displayY + height) {
+        if (y > displayY && y <= displayY + height) {
+            if (moving || (x > displayX && x <= displayX + width)) {
                 currentScroll = y - displayY
                 currentScroll = minScroll + currentScroll * 2 * getRange() / height
                 currentScroll = currentScroll + 1 shr 1
                 applyRange()
+                moving = true
             }
         }
     }
