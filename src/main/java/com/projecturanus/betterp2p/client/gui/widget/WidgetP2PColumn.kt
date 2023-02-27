@@ -41,7 +41,6 @@ class WidgetP2PColumn(private val gui: GuiAdvancedMemoryCard,
                 x, y + i * (P2P_ENTRY_HEIGHT + 1))
             entries.add(widget)
         }
-        scrollBar.setRange(0, entries.size, 23)
     }
 
     fun setPosition(x: Int, y: Int) {
