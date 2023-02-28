@@ -4,6 +4,7 @@ import com.projecturanus.betterp2p.MODID
 import com.projecturanus.betterp2p.client.gui.GUI_TEX_HEIGHT
 import com.projecturanus.betterp2p.client.gui.GUI_WIDTH
 import com.projecturanus.betterp2p.client.gui.GuiAdvancedMemoryCard
+import com.projecturanus.betterp2p.client.gui.drawTexturedQuad
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.renderer.OpenGlHelper
@@ -35,18 +36,17 @@ abstract class WidgetButton(val gui: GuiAdvancedMemoryCard, x: Int, y: Int, widt
         GL11.glEnable(GL11.GL_BLEND)
         OpenGlHelper.glBlendFunc(770, 771, 1, 0)
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        tessellator.startDrawingQuads()
-        tessellator.addVertexWithUV(xPosition.toDouble(), (yPosition + height).toDouble(), 0.0, (32.0 * k) / GUI_WIDTH, (232.0 + height) / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(((xPosition + width).toDouble()), (yPosition + height).toDouble(), 0.0, (32.0 * (k + 1)) / GUI_WIDTH, (232.0 + height) / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV((xPosition + width).toDouble(), yPosition.toDouble(), 0.0, (32.0 * (k + 1)) / GUI_WIDTH, 232.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(xPosition.toDouble(), yPosition.toDouble(), 0.0, (32.0 * k) / GUI_WIDTH, 232.0 / GUI_TEX_HEIGHT)
-        tessellator.draw()
-        tessellator.startDrawingQuads()
-        tessellator.addVertexWithUV(xPosition.toDouble(), (yPosition + height).toDouble(), 0.0, texX / GUI_WIDTH, (texY + height) / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(((xPosition + width).toDouble()), (yPosition + height).toDouble(), 0.0, (texX + width) / GUI_WIDTH, (texY + height) / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV((xPosition + width).toDouble(), yPosition.toDouble(), 0.0, (texX + width) / GUI_WIDTH, texY / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(xPosition.toDouble(), yPosition.toDouble(), 0.0, texX / GUI_WIDTH, texY / GUI_TEX_HEIGHT)
-        tessellator.draw()
+        // Draw button backdrop
+        drawTexturedQuad(tessellator, xPosition.toDouble(), yPosition.toDouble(),
+            (xPosition + width).toDouble(), (yPosition + height).toDouble(),
+            u0 = (32.0 * k) / GUI_WIDTH, v0 = (232.0) / GUI_TEX_HEIGHT,
+            u1 = (32.0 * (k + 1)) / GUI_WIDTH, v1 = (232.0 + height) / GUI_TEX_HEIGHT)
+        // Draw button icon
+        drawTexturedQuad(tessellator, xPosition.toDouble(), yPosition.toDouble(),
+            (xPosition + width).toDouble(), (yPosition + height).toDouble(),
+            u0 = texX / GUI_WIDTH, v0 = texY / GUI_TEX_HEIGHT,
+            u1 = (texX + width) / GUI_WIDTH, v1 = (texY + height) / GUI_TEX_HEIGHT)
+
     }
     fun setPosition(x: Int, y: Int) {
         this.xPosition = x
