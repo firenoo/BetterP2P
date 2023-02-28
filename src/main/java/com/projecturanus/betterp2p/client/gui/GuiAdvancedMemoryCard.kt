@@ -260,29 +260,23 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         bindTexture(MODID, "textures/gui/advanced_memory_card.png")
         val tessellator = Tessellator.instance
         // Draw the top part
-        tessellator.startDrawingQuads()
-        tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop + 60.0, 0.0, 0.0, 60.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(((guiLeft + GUI_WIDTH).toDouble()), guiTop + 60.0, 0.0, 1.0, 60.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV((guiLeft + GUI_WIDTH).toDouble(), guiTop.toDouble(), 0.0, 1.0, 0.0)
-        tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop.toDouble(), 0.0, 0.0, 0.0)
-        tessellator.draw()
+        drawTexturedQuad(tessellator, guiLeft.toDouble(), guiTop.toDouble(),
+            (guiLeft + GUI_WIDTH).toDouble(), guiTop + 60.0,
+            u0 = 0.0, v0 = 0.0,
+            u1 = 1.0, v1 = 60.0 / GUI_TEX_HEIGHT)
         // Draw P2P segments
         val p2pHeight = P2P_ENTRY_HEIGHT + 1.0
         for (i in 0 until scale.size(ySize - 75) - 2) {
-            tessellator.startDrawingQuads()
-            tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop + 60.0 + p2pHeight * (i + 1), 0.0, 0.0, 102.0 / GUI_TEX_HEIGHT)
-            tessellator.addVertexWithUV(((guiLeft + GUI_WIDTH).toDouble()), guiTop + 60.0 + p2pHeight * (i + 1), 0.0, 1.0, 102.0 / GUI_TEX_HEIGHT)
-            tessellator.addVertexWithUV((guiLeft + GUI_WIDTH).toDouble(), guiTop + 60.0 + p2pHeight * i, 0.0, 1.0, 60.0 / GUI_TEX_HEIGHT)
-            tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop + 60.0 + p2pHeight * i, 0.0, 0.0, 60.0 / GUI_TEX_HEIGHT)
-            tessellator.draw()
+            drawTexturedQuad(tessellator, guiLeft.toDouble(), guiTop + 60.0 + p2pHeight * i,
+                (guiLeft + GUI_WIDTH).toDouble(), guiTop + 60.0 + p2pHeight * (i + 1),
+                u0 = 0.0, v0 = 60.0 / GUI_TEX_HEIGHT,
+                u1 = 1.0, v1 = 102.0 / GUI_TEX_HEIGHT)
         }
         // Draw Bottom
-        tessellator.startDrawingQuads()
-        tessellator.addVertexWithUV(guiLeft.toDouble(), (guiTop + ySize).toDouble(), 0.0, 0.0, 200.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(((guiLeft + GUI_WIDTH).toDouble()), (guiTop + ySize).toDouble(), 0.0, 1.0, 200.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV((guiLeft + GUI_WIDTH).toDouble(), guiTop + ySize - 98.0, 0.0, 1.0, 102.0 / GUI_TEX_HEIGHT)
-        tessellator.addVertexWithUV(guiLeft.toDouble(), guiTop + ySize - 98.0, 0.0, 0.0, 102.0 / GUI_TEX_HEIGHT)
-        tessellator.draw()
+        drawTexturedQuad(tessellator, guiLeft.toDouble(), guiTop + ySize - 98.0,
+            (guiLeft + GUI_WIDTH).toDouble(), (guiTop + ySize).toDouble(),
+            u0 = 0.0, v0 = 102.0 / GUI_TEX_HEIGHT,
+            u1 = 1.0, v1 = 200.0 / GUI_TEX_HEIGHT)
     }
 
     override fun doesGuiPauseGame(): Boolean {
