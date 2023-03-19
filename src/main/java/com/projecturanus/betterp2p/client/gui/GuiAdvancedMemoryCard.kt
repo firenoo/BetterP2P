@@ -49,6 +49,16 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
     private var mode = msg.memoryInfo.mode
     private var modeString = getModeString()
     private val modeButton by lazy { GuiButton(0, guiLeft + 8, guiTop + 190, 256, 20, modeString) }
+    private val sortRules: List<String> by lazy {
+        listOf(
+            "§b§n" + I18n.format("gui.advanced_memory_card.sortinfo1"),
+            "§9@in§7 - " + I18n.format("gui.advanced_memory_card.sortinfo2"),
+            "§6@out§7 - " + I18n.format("gui.advanced_memory_card.sortinfo3"),
+            "§a@b§7 - " + I18n.format("gui.advanced_memory_card.sortinfo4"),
+            "§c@u§7 - " + I18n.format("gui.advanced_memory_card.sortinfo5"),
+            "§7" + I18n.format("gui.advanced_memory_card.sortinfo6")
+        )
+    }
 
     private val selectedInfo: InfoWrapper?
         get() = infos.selectedInfo
@@ -141,6 +151,9 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
         drawInformation()
         if(renameBar.isVisible && !renameBar.isFocused) renameBar.setFocus(true)
         renameBar.drawTextBox()
+        if (searchBar.isMouseIn(mouseX, mouseY)) {
+            drawHoveringText(sortRules, guiLeft, guiTop + ySize - 40, fontRendererObj)
+        }
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -321,8 +334,7 @@ class GuiAdvancedMemoryCard(msg: S2CListP2P) : GuiScreen(), TextureBound {
             }else{
                 renameBar.textboxKeyTyped(char, key)
             }
-        }else if (searchBar.isFocused && !(char == ' ' && searchBar.text.isEmpty())){
-            searchBar.textboxKeyTyped(char, key)
+        }else if (!(char.isWhitespace() && searchBar.text.isEmpty()) && searchBar.textboxKeyTyped(char, key)){
             infos.refilter()
         }
         return super.keyTyped(char, key)
