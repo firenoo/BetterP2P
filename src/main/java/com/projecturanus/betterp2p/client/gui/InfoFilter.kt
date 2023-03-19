@@ -21,10 +21,7 @@ class InfoFilter {
      * filter list.
      */
     fun updateFilter(query: String) {
-        // I spent 10 minutes on this until I gave up... regex wtf
-        // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
-        val regex = "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'".toRegex()
-        val tokens = regex.findAll(query)
+        val tokens = SEARCH_REGEX.findAll(query)
         activeFilters.clear()
         tokens.forEach {
             when {
@@ -74,5 +71,9 @@ enum class Filter(val pattern: Regex, val filter: (InfoWrapper, List<String>?) -
         }
         false
     });
-
 }
+
+// I spent 10 minutes on this until I gave up... regex wtf
+// https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
+val SEARCH_REGEX = "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'".toRegex()
+

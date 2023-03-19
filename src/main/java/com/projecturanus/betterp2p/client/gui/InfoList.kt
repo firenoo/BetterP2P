@@ -102,12 +102,6 @@ class InfoList (initList: Collection<InfoWrapper>,
                 else -> it.frequency + Short.MAX_VALUE
             }
         }
-//        filtered = sorted.filter {
-//            it.frequency.toHexString().contains(searchStr.uppercase()) ||
-//                it.frequency.toHexString().format4().contains(searchStr.uppercase()) ||
-//                it.name.lowercase().contains(searchStr.lowercase()) ||
-//                it.code == selectedEntry
-//        }
     }
 
     /**
